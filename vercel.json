@@ -5,6 +5,18 @@
       "has": [{ "type": "host", "value": "www.theclicks.ca" }],
       "destination": "https://theclicks.ca/:path*",
       "permanent": true
+    },
+    {
+      "source": "/:path*/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-edge",
+          "value": "1"
+        }
+      ],
+      "destination": "/:path*",
+      "permanent": true
     }
   ]
 }
