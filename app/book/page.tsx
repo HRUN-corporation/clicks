@@ -1,57 +1,29 @@
 "use client";
 
-import { EventScheduledEvent, InlineWidget } from "react-calendly";
+import { InlineWidget } from "react-calendly";
 
 import Navbar from "@/components/navbar";
 import { useEffect } from "react";
 
 const Book = () => {
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://assets.calendly.com/assets/external/widget.js";
-    script.async = true;
-    script.onload = () => {
-      try {
-        // Initialize the Calendly widget
-        if (window.Calendly) {
-          window.Calendly.initInlineWidget({
-            url: "https://calendly.com/p-demenshyn-theclicks",
-            parentElement: document.getElementById("calendly-container"),
-            prefill: {},
-            utm: {},
+    const handleCalendlyEvent = (e: MessageEvent) => {
+      if (e.data?.event === "calendly.event_scheduled") {
+        console.log("Calendly event scheduled: ", e);
+        if (window.dataLayer) {
+          window.dataLayer.push({
+            event: "CalendlyEventScheduled",
+            calendly_event_uri: e.data.payload.event.uri,
+            calendly_invitee_uri: e.data.payload.invitee.uri,
           });
-
-          // Set up the event listener for Calendly events
-          window.Calendly.setupWidget({
-            url: "https://calendly.com/p-demenshyn-theclicks",
-            parentElement: document.getElementById("calendly-container"),
-            prefill: {},
-            utm: {},
-            onEvent: function (e: EventScheduledEvent) {
-              if (e.data.event === "calendly.event_scheduled") {
-                if (typeof window !== "undefined" && window.dataLayer) {
-                  window.dataLayer?.push({
-                    event: "CalendlyEventScheduled",
-                    calendly_event_uri: e.data.payload.event.uri,
-                    calendly_invitee_uri: e.data.payload.invitee.uri,
-                  });
-                }
-              }
-            },
-          });
-        } else {
-          throw new Error("Calendly script not loaded properly.");
         }
-      } catch (error) {
-        console.error("Error initializing Calendly widget:", error);
       }
     };
 
-    document.body.appendChild(script);
+    window.addEventListener("message", handleCalendlyEvent);
 
-    // Clean up the script when the component unmounts
     return () => {
-      document.body.removeChild(script);
+      window.removeEventListener("message", handleCalendlyEvent);
     };
   }, []);
 
