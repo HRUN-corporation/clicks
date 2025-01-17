@@ -61,6 +61,8 @@ const BlogPost: FC<PostProps> = ({ params }) => {
     return <div>Post not found</div>;
   }
 
+  console.log("post", post);
+
   const { title, description, body, featuredImage, category } = post.fields;
 
   return (
